@@ -14,9 +14,9 @@ $c.close
 STDOUT.sync = true
 
 # ---- Functions ----
-def colourWrapper(fg,bg,data, click:"no")
+def colourWrapper(fg,bg,data, click:"n")
 	# Wrap data in lemonbar markup, with optional clickable element
-	if click == "no"
+	if click == "n"
 		"%{F#{fg}}%{B#{bg}} #{data} %{B-}%{F-}"
 	else
 		"%{F#{fg}}%{B#{bg}}%{A:#{click}:} #{data} %{A}%{B-}%{F-}"
