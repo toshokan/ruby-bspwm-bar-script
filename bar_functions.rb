@@ -5,8 +5,8 @@ require 'yaml'
 # ---- Config Variables ----
 # Path to the unix pipe used for communication
 $panel_fifo = "/tmp/panel-fifo"
-# Path to yaml formatted colour list 
-$colour_file = "colours.yaml"
+# Path to yaml formatted colour list ( #{Dir.home} represents ~ )
+$colour_file = "#{Dir.home}/.Xresources.d/bar-colours.yaml"
 # Options passed to bar 
 $panel_height = 16
 $panel_font = "Kochi Gothic,東風ゴシック:style=Regular:size=9"
