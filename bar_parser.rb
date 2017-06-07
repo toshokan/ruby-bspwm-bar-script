@@ -121,7 +121,7 @@ while line = gets
 		print "%{l}#{$wm_array[0]}%{c}#{title}%{r}#{net} | #{batt} | #{vol} | #{sys}"
 		print "%{S+}%{l}#{$wm_array[1]}%{c}#{title}%{r}#{net} | #{batt} | #{vol} |  #{sys}\n"
 	else
-		print "%{l}#{$wm_array[1]}%{c}#{title}%{r}#{net} | #{batt} | #{vol} | #{sys}"
+		print "%{l}#{$wm_array[0]}%{c}#{title}%{r}#{net} | #{batt} | #{vol} | #{sys}\n"
 	end
 
 end
