@@ -107,7 +107,7 @@ end
 
 def startBar()
 	# Start bar in a subshell, receiving information formatted by bar_parser.rb
-	system("./bar_parser.rb < #{$panel_fifo} | lemonbar -a 32 -n #{$panel_wm_name} -g x#{$panel_height} -f \"#{$panel_font}\" -F \"#{$colours['DEFAULT_FG']}\" -B \"#{$colours['DEFAULT_BG']}\" | sh")
+	system("bar_parser.rb < #{$panel_fifo} | lemonbar -a 32 -n #{$panel_wm_name} -g x#{$panel_height} -f \"#{$panel_font}\" -F \"#{$colours['DEFAULT_FG']}\" -B \"#{$colours['DEFAULT_BG']}\" | sh")
 end
 
 def barLayer()
