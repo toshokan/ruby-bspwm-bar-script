@@ -53,7 +53,7 @@ def net()
 	ethernet="enp0s25"
 	wireless="wlp3s0"
 	loop do
-		if `ip link show "#{ethernet}"`.include?("state DOWN") and `ip link show "#{wireless}"`.cinlude?("state DOWN") 
+		if `ip link show "#{ethernet}"`.include?("state DOWN") and `ip link show "#{wireless}"`.include?("state DOWN") 
 			net = ""
 			sleep 30
 		elsif `ip link show "#{ethernet}"`.include?("state UP")
