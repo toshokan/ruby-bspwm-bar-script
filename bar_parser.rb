@@ -13,6 +13,17 @@ $c.close
 # Flush stdout immediately
 STDOUT.sync = true
 
+# ---- Functions ----
+def colourWrapper(fg,bg,data, click:"no")
+	# Wrap data in lemonbar markup, with optional clickable element
+	if click == "no"
+		"%{F#{fg}}%{B#{bg}} #{data} %{B-}%{F-}"
+	else
+		"%{F#{fg}}%{B#{bg}}%{A:#{click}:} #{data} %{A}%{B-}%{F-}"
+	end
+end
+
+
 # ---- Main ----
 # Get number of monitors and initialize an array to hold their properties
 $numMonitors = `bspc query -M`.lines.count
@@ -24,19 +35,19 @@ while line = gets
 	case line
 		when /^N/
 			# Network information
-			net = "%{F#{$colours['SYS_FG']}%}%{B#{$colours['SYS_BG']}} #{data} %{B-}%{F-}"
+			net = colourWrapper($colours['SYS_FG'], $colours['SYS_BG'], data)
 		when /^B/
 			# Battery Information
-			batt = "%{F#{$colours['SYS_FG']}}%{B#{$colours['SYS_BG']}} #{data} %{B-}%{F-}"
+			batt = colourWrapper($colours['SYS_FG'], $colours['SYS_BG'], data)
 		when /^V/
 			# Volume Information
-			vol = "%{F#{$colours['SYS_FG']}}%{B#{$colours['SYS_BG']}} #{data} %{B-}%{F-}"
+			vol = colourWrapper($colours['SYS_FG'], $colours['SYS_BG'], data)
 		when /^S/
 			# Clock Information
-			sys = "%{F#{$colours['SYS_FG']}}%{B#{$colours['SYS_BG']}} #{data} %{B-}%{F-}"
+			sys = colourWrapper($colours['SYS_FG'], $colours['SYS_BG'], data, click:"notify-send \"\`cal\`\"")
 		when /^T/
 			# Window Title Information
-			title = "%{F#{$colours['TITLE_FG']}}%{B#{$colours['TITLE_BG']}} #{data} %{B-}%{F-}"
+			title = colourWrapper($colours['SYS_FG'], $colours['SYS_BG'], data)
 		when /^W/
 			# Bspwm State Information
 			wm=""
@@ -63,7 +74,7 @@ while line = gets
 								fg=$colours['FOCUSED_MONITOR_FG']
 								bg=$colours['FOCUSED_MONITOR_BG']
 						end
-						wm="#{wm}%{F#{fg}}%{B#{bg}}%{A:bspc monitor -f #{name}:} #{name} %{A}%{B-}%{F-}"
+						wm = wm << colourWrapper(fg,bg,name,click:"bspc monitor -f #{name}")
 					when /^[fFoOuU]/
 						case item
 							when /^f/
@@ -97,10 +108,10 @@ while line = gets
 								bg=$colours['FOCUSED_URGENT_BG']
 								desktop_num+=1
 						end
-						wm="#{wm}%{F#{fg}}%{B#{bg}}%{A:bspc desktop -f ^#{desktop_num}:} #{name} %{A}%{B-}%{F-}"
+						wm = wm << colourWrapper(fg,bg,name,click:"bspc desktop -f ^#{desktop_num}")
 					when /^[LTG]/
 						# Layout, State, and Flags
-						wm="#{wm}%{F#{$colours['STATE_FG']}}%{B#{$colours['STATE_BG']}} #{name} %{B-}%{F-}"
+						wm = wm << colourWrapper($colours['STATE_FG'],$colours['STATE_BG'],name)
 				end
 				$wm_array[cur_mon]=wm
 			end	
