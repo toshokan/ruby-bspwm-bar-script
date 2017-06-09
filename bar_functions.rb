@@ -41,9 +41,8 @@ end
 
 def clock()
 	# Get the time
-	time = Time.new
 	loop do
-		$f.puts 'S' << time.strftime("%d %b %H:%M")
+		$f.puts 'S' << Time.now.strftime("%d %b %H:%M")
 		sleep 1
 	end
 end
@@ -107,7 +106,7 @@ end
 
 def startBar()
 	# Start bar in a subshell, receiving information formatted by bar_parser.rb
-	system("bar_parser.rb < #{$panel_fifo} | lemonbar -a 32 -n #{$panel_wm_name} -g x#{$panel_height} -f \"#{$panel_font}\" -F \"#{$colours['DEFAULT_FG']}\" -B \"#{$colours['DEFAULT_BG']}\" | sh")
+	system("bar_parser.rb < #{$panel_fifo} | lemonbar -a 32 -n #{$panel_wm_name} -g x#{$panel_height} -f \"#{$panel_font}\" -F \"#{$colours[:DEFAULT_FG]}\" -B \"#{$colours[:DEFAULT_BG]}\" | sh")
 end
 
 def barLayer()
@@ -116,7 +115,12 @@ def barLayer()
 	root_ids = `xdo id -n root`
 	panel_ids.each_line do |pid|
 		root_ids.each_line do |rid|
-				system("xdo above -t #{rid.chomp} #{pid.chomp}")
+			system("xdo below -t #{rid.chomp} #{pid.chomp}")
+		end
+	end
+	panel_ids.each_line do |pid|
+		root_ids.each_line do |rid|
+			system("xdo above -t #{rid.chomp} #{pid.chomp}")
 		end
 	end
 end
