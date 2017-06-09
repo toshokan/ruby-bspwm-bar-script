@@ -72,7 +72,7 @@ while line = gets
 								cur_mon+=1
 								wm=""
 								fg=$colours[:FOCUSED_MONITOR_FG]
-								bg=$colours['FOCUSED_MONITOR_BG']
+								bg=$colours[:FOCUSED_MONITOR_BG]
 						end
 						wm = wm << colourWrapper(fg,bg,name,click:"bspc monitor -f #{name}")
 					when /^[fFoOuU]/
