@@ -6,7 +6,7 @@ require 'open3'
 # ---- Config Variables ----
 # Path to the unix pipe used for communication
 $panel_fifo = "/tmp/panel-fifo"
-# Path to yaml formatted colour list ( #{Dir.home} represents ~ )
+# Path to JSON formatted colour list ( #{Dir.home} represents ~ )
 $colour_file = "#{Dir.home}/.Xresources.d/bar-colours.json"
 # Options passed to bar 
 $panel_height = 16

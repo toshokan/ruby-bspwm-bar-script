@@ -3,7 +3,7 @@
 require 'json'
 
 # ---- Config Variables ----
-# Path to yaml formatted colour list ( #{Dir.home} represents ~ )
+# Path to JSON formatted colour list ( #{Dir.home} represents ~ )
 $colour_file = "#{Dir.home}/.Xresources.d/bar-colours.json"
 
 # ---- File Preparation ----
