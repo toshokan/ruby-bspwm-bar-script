@@ -121,8 +121,17 @@ end
 def startBar()
   # Use pipes on bar_parser.rb and lemonbar to print parsed information to bar 
   lemonbarCmd = "lemonbar -a 32 -n #{$panel_wm_name} -g x#{$panel_height} -f \"#{$panel_font}\" -F \"#{$colours[:DEFAULT_FG]}\" -B \"#{$colours[:DEFAULT_BG]}\""
-  parsepipe = IO.popen("./bar_parser.rb", "r+")
+  parsepipe = IO.popen("bar_parser.rb", "r+")
   lemonpipe = IO.popen(lemonbarCmd, "r+")
+  shpipe = IO.popen("sh", "w")
+
+  fpid = fork do
+    while line = lemonpipe.gets do
+      shpipe.puts line
+    end
+  end
+
+  $pids.push fpid
 
   while line = $f.readline do
     parsepipe.puts line
