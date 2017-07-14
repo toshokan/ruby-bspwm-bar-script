@@ -166,6 +166,7 @@ end
 # ---- Main ----
 # Register signal handler
 Signal.trap("TERM") { cleanup() }
+Signal.trap("INT") { cleanup() }
 
 # Start threads for each function
 Thread.new { volume() }
