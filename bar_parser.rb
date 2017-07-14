@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 
-require 'yaml'
+require 'json'
 
 # ---- Config Variables ----
 # Path to yaml formatted colour list ( #{Dir.home} represents ~ )
-$colour_file = "#{Dir.home}/.Xresources.d/bar-colours.yaml"
+$colour_file = "#{Dir.home}/.Xresources.d/bar-colours.json"
 
 # ---- File Preparation ----
 $c = File.open($colour_file, "r+")
-$colours = YAML.load($c.read)
+$colours = JSON.parse($c.read, symbolize_names: true)
 $c.close
 # Flush stdout immediately
 STDOUT.sync = true
@@ -16,6 +16,7 @@ STDOUT.sync = true
 # ---- Functions ----
 def colourWrapper(fg, bg, data, params={})
 	# Wrap data in lemonbar markup, with optional clickable element
+  puts "oops"+params[:click] if fg.nil? || bg.nil?
 	if !params[:click]
 		"%{F#{fg}}%{B#{bg}} #{data} %{B-}%{F-}"
 	else
@@ -31,11 +32,12 @@ $wm_array = Array.new($numMonitors)
 
 # Loop over STDIN
 while line = gets
+#ARGF.read.each_line do |line|
 	data = line[1..-1].chomp
 	case line
 		when /^N/
 			# Network information
-			net = colourWrapper($colours[:SYS_FG], $colours[:SYS_BG], data)
+			net = colourWrapper($colours[:SYS_FG], $colours[:SYS_BG], data, click:'urxvt -e "nmtui"')
 		when /^B/
 			# Battery Information
 			batt = colourWrapper($colours[:SYS_FG], $colours[:SYS_BG], data)
@@ -44,7 +46,7 @@ while line = gets
 			vol = colourWrapper($colours[:SYS_FG], $colours[:SYS_BG], data)
 		when /^S/
 			# Clock Information
-			sys = colourWrapper($colours[:SYS_FG], $colours[:SYS_BG], data, click:"notify-send \"\`cal\`\"")
+			sys = colourWrapper($colours[:SYS_FG], $colours[:SYS_BG], data, click:'notify-send "`cal`"')
 		when /^T/
 			# Window Title Information
 			title = colourWrapper($colours[:SYS_FG], $colours[:SYS_BG], data)
@@ -79,8 +81,8 @@ while line = gets
 						case item
 							when /^f/
 								# Free desktop
-								fg=$colours['FREE_FG']
-								bg=$colours['FREE_BG']
+								fg=$colours[:FREE_FG]
+								bg=$colours[:FREE_BG]
 								desktop_num+=1
 							when /^F/
 								# Focused free desktop

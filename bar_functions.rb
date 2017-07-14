@@ -1,18 +1,19 @@
 #!/usr/bin/env ruby
 
-require 'yaml'
+require 'json'
+require 'open3'
 
 # ---- Config Variables ----
 # Path to the unix pipe used for communication
 $panel_fifo = "/tmp/panel-fifo"
 # Path to yaml formatted colour list ( #{Dir.home} represents ~ )
-$colour_file = "#{Dir.home}/.Xresources.d/bar-colours.yaml"
+$colour_file = "#{Dir.home}/.Xresources.d/bar-colours.json"
 # Options passed to bar 
 $panel_height = 16
 $panel_font = "Kochi Gothic,東風ゴシック:style=Regular:size=9"
 $panel_wm_name = "bspwm_panel"
 
-# ---- File Preparation ----
+# ---- File and Environment Preparation ----
 if File.exist?($panel_fifo)
 	File.delete($panel_fifo)
 end
@@ -20,8 +21,11 @@ system("mkfifo #{$panel_fifo}")
 $f = File.open($panel_fifo, "a+")
 $f.sync = true
 $c = File.open($colour_file, "r+")
-$colours = YAML.load($c.read)
+$colours = JSON.parse($c.read, symbolize_names: true)
 $c.close
+
+$pids = Array.new
+Process.setproctitle("bar_functions")
 
 # ---- Functions ----
 def volume()
@@ -94,19 +98,36 @@ def battery()
 end
 
 def windowTitle()
-	# Get the window title (piped directly to $panel_fifo via a subshell)
+	# Get the window title
 	marker = 'T'
-	system("xtitle -sf '#{marker}%s\n' -t 150 > #{$panel_fifo}")
+  Open3.popen2("xtitle -sf \"#{marker}%s\n\" -t 150") do |stdin, stdout, status|
+    $pids.push status.pid
+    stdout.each_line do |line|
+      $f.puts line
+    end
+  end
 end
 
 def bspcSubscribe()
-	# Get bspwm info (piped directly to $panel_fifo via a subshell)
-	system("bspc subscribe report > #{$panel_fifo}")
+	# Get bspwm info
+  Open3.popen2("bspc subscribe report") do |stdin, stdout, status|
+    $pids.push status.pid
+    stdout.each_line do |line|
+      $f.puts line
+    end
+  end
 end
 
 def startBar()
-	# Start bar in a subshell, receiving information formatted by bar_parser.rb
-	system("bar_parser.rb < #{$panel_fifo} | lemonbar -a 32 -n #{$panel_wm_name} -g x#{$panel_height} -f \"#{$panel_font}\" -F \"#{$colours[:DEFAULT_FG]}\" -B \"#{$colours[:DEFAULT_BG]}\" | sh")
+  # Use pipes on bar_parser.rb and lemonbar to print parsed information to bar 
+  lemonbarCmd = "lemonbar -a 32 -n #{$panel_wm_name} -g x#{$panel_height} -f \"#{$panel_font}\" -F \"#{$colours[:DEFAULT_FG]}\" -B \"#{$colours[:DEFAULT_BG]}\""
+  parsepipe = IO.popen("./bar_parser.rb", "r+")
+  lemonpipe = IO.popen(lemonbarCmd, "r+")
+
+  while line = $f.readline do
+    parsepipe.puts line
+    lemonpipe.puts parsepipe.gets
+  end
 end
 
 def barLayer()
@@ -125,7 +146,18 @@ def barLayer()
 	end
 end
 
+def cleanup()
+  # Kill child processes and exit cleanly
+  $pids.each do |pid|
+    Process.kill("TERM", pid)
+  end
+  exit 0
+end
+
 # ---- Main ----
+# Register signal handler
+Signal.trap("TERM") { cleanup() }
+
 # Start threads for each function
 Thread.new { volume() }
 Thread.new { clock() }
@@ -148,5 +180,3 @@ end
 
 # Sleep forever, keeping threads active
 sleep
-
-
