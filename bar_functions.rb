@@ -55,13 +55,17 @@ def net()
 	# Get network traffic on wired and wireless interfaces
 	ethernet="enp0s25"
 	wireless="wlp3s0"
+
+  up = lambda { |iface| File.read("/sys/class/net/#{iface}/carrier").chomp() == "1" }
+  
 	loop do
-		if `ip link show "#{ethernet}"`.include?("state DOWN") and `ip link show "#{wireless}"`.include?("state DOWN") 
+    if not up.call(ethernet) and not up.call(wireless) then
+      puts "we are here"
 			net = ""
 			sleep 30
-		elsif `ip link show "#{ethernet}"`.include?("state UP")
+    elsif up.call(ethernet) then
 			net = netHelper(ethernet)
-		elsif `ip link show "#{wireless}"`.include?("state UP")
+    elsif up.call(wireless) then
 			net = netHelper(wireless)
 		end
 		$f.puts 'N' << net
@@ -70,8 +74,10 @@ end
 
 def netHelper(iface)
 	# Calculate network traffic from sysfs stats
-	rxFile = "/sys/class/net/#{iface}/statistics/rx_bytes"
-	txFile = "/sys/class/net/#{iface}/statistics/tx_bytes"
+  fstr = lambda { |qx| "/sys/class/net/#{iface}/statistics/#{qx}_bytes" }
+  
+  rxFile = fstr.call("rx");
+  txFile = fstr.call("tx");
 	rx1 = File.read(rxFile).to_i
 	tx1 = File.read(txFile).to_i
 	sleep 1
