@@ -32,7 +32,6 @@ $wm_array = Array.new($numMonitors)
 
 # Loop over STDIN
 while line = gets
-#ARGF.read.each_line do |line|
 	data = line[1..-1].chomp
 	case line
 		when /^N/
