@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# coding: utf-8
 
 require 'json'
 require 'open3'
@@ -60,14 +61,13 @@ def net()
   
 	loop do
     if not up.call(ethernet) and not up.call(wireless) then
-      puts "we are here"
 			net = ""
 			sleep 30
     elsif up.call(ethernet) then
 			net = netHelper(ethernet)
     elsif up.call(wireless) then
 			net = netHelper(wireless)
-		end
+    end
 		$f.puts 'N' << net
 	end
 end
@@ -90,9 +90,19 @@ end
 
 def battery()
 	# Get battery information
+  battSysfs = "/sys/class/power_supply/BAT0/"
 	loop do
-		batt = /[0-9]+%/.match(`acpi -b`)[0].chomp('%')
-		battstatus = File.read("/sys/class/power_supply/BAT0/status")
+    # Some battery controllers provide battery percentage directly
+    if File.exist?(battSysfs+"capacity")
+      batt = File.read(battSysfs+"capacity")
+    else
+      batt_now = File.read(battSysfs+"energy_now")
+      batt_full = File.read(battSysfs+"energy_full")
+      batt = batt_now.to_f / batt_full.to_i * 100
+      batt = batt.round.to_s
+    end
+
+		battstatus = File.read(battSysfs+"status")
 		if battstatus.include?("Discharging")
 			batt << '-'
 		elsif battstatus.include?("Charging")
