@@ -1,5 +1,10 @@
 # ruby-bspwm-bar-script
-A complete and easily extendable bspwm / lemonboy bar panel script. Written in Ruby for speed, efficiency, and readability. 
+A complete and easily extendable bspwm / lemonboy bar panel script. Written in Ruby for speed, efficiency, and readability.
+
+# DEPRECATED
+This project is no longer maintained. For a more up to date version, see
+[toshokan/ruby-bar-config](https://github.com/toshokan/ruby-bar-config)
+It has been completely rewritten and is much more generic and easily configurable.
 
 This panel script supports multiple monitors and prints volume, battery, network throughput, and time information.
 
